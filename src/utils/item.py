@@ -45,7 +45,8 @@ class Item:
       "name": self.name,
       "quantity": self.quantity,
       "quantity_unit": self.quantity_unit,
+      "type": self.type,
     }
 
   def __str__(self) -> str:
-    return f"<Item upc={self.upc} name='{self.name}' size: {self.quantity}{self.quantity_unit}>"
+    return f"<Item type={self.type} upc={self.upc} name='{self.name}' size: {self.quantity}{self.quantity_unit}>"
