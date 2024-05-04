@@ -269,6 +269,7 @@ async def get_upc_search(request: Request) -> Response:
 
   return web.json_response(out)
 
+
 @routes.get("/upc/{upc:\d+}")
 @limiter.limit("30/minute")
 async def get_upc_aiohttp(request: Request) -> Response:
