@@ -77,7 +77,7 @@ async def get_upc(
           ON CONFLICT (upc)
           DO
             UPDATE SET
-              type = $1
+              type = $1,
               name = $3,
               quantity = $4,
               quantityunit = $5;
