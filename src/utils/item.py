@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from .validate import identify_type
+
 if TYPE_CHECKING:
   from asyncpg import Record
 
@@ -28,6 +30,9 @@ class Item:
     self.quantity_unit = quantity_unit
     self.type = type
 
+    if self.type is None:
+      self.type = identify_type(self.upc)
+
   @classmethod
   def from_record(cls, record: Record):
     return cls(
@@ -40,6 +45,9 @@ class Item:
 
   @property
   def dump(self) -> str:
+    if self.type is None:
+      self.type = identify_type(self.upc)
+
     return {
       "upc": self.upc,
       "name": self.name,

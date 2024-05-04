@@ -71,16 +71,18 @@ async def get_upc(
       await conn.execute(
         """
           INSERT INTO
-            Items (upc, name, quantity, quantityunit)
+            Items (type, upc, name, quantity, quantityunit)
           VALUES
-            ($1, $2, $3, $4)
+            ($1, $2, $3, $4, $5)
           ON CONFLICT (upc)
           DO
             UPDATE SET
-              name = $2,
-              quantity = $3,
-              quantityunit = $4;
+              type = $1
+              name = $3,
+              quantity = $4,
+              quantityunit = $5;
           """,
+        item.type,
         item.upc,
         item.name,
         item.quantity,

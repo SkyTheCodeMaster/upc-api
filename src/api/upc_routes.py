@@ -133,7 +133,7 @@ async def post_upc(request: Request) -> Response:
         ON CONFLICT (upc)
         DO
           UPDATE SET
-            type = $2,
+            type = $1,
             name = $3,
             quantity = $4,
             quantityunit = $5;
@@ -155,7 +155,7 @@ async def post_upc(request: Request) -> Response:
         ON CONFLICT (upc)
         DO
           UPDATE SET
-            type = $2,
+            type = $1,
             name = $3,
             quantity = $4,
             quantityunit = $5;
@@ -288,7 +288,7 @@ async def get_upc_aiohttp(request: Request) -> Response:
     timestamp = math.floor(datetime.datetime.utcnow().timestamp())
     try:
       await request.conn.execute(
-        """INSERT INTO Misses (Type, UPC, Converted, Date) VALUES ($1, $2, $3);""",
+        """INSERT INTO Misses (Type, UPC, Converted, Date) VALUES ($1, $2, $3, $4);""",
         guess["guess"],
         upc,
         guess["upce.converted"],
