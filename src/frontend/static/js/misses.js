@@ -42,6 +42,7 @@ function generate_table_row(miss) {
   // Nest elements
   td_button_google.appendChild(button_google);
   td_button_create.appendChild(button_create);
+  tr.append(td_type);
   tr.append(td_upc);
   tr.append(td_converted);
   tr.append(td_date);
