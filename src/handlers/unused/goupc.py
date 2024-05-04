@@ -14,7 +14,8 @@ if TYPE_CHECKING:
 
   from aiohttp import ClientSession
 
-async def get_goupc(cs: ClientSession, upc: Union[str,int]) -> False|Item:
+
+async def get_goupc(cs: ClientSession, upc: Union[str, int]) -> False | Item:
   url = f"https://go-upc.com/search?q={upc}"
 
   async with cs.get(url) as resp:
@@ -28,11 +29,8 @@ async def get_goupc(cs: ClientSession, upc: Union[str,int]) -> False|Item:
       return False
 
     # Extract all the table rows
-    name: Tag = soup.find_all("h1", {"class":"product-name"})[0]
+    name: Tag = soup.find_all("h1", {"class": "product-name"})[0]
 
-    i = Item(
-      upc = upc,
-      name = name.get_text()
-    )
+    i = Item(upc=upc, name=name.get_text())
 
     return i

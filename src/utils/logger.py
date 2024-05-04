@@ -35,7 +35,6 @@ def get_forwarded_for(headers: MultiMapping[str]) -> List[IPAddress]:
 
 
 class CustomWebLogger(AccessLogger):
-
   def compile_format(self, log_format: str) -> Tuple[str, List[KeyMethod]]:
     """
     Translate log_format into form usable by modulo formatting
@@ -72,9 +71,9 @@ class CustomWebLogger(AccessLogger):
     return log_format, methods
 
   @staticmethod
-  def _format_a(request: BaseRequest, 
-                response: StreamResponse,
-                time: float) -> str:
+  def _format_a(
+    request: BaseRequest, response: StreamResponse, time: float
+  ) -> str:
     if request is None:
       return "-"
     headers = request.headers

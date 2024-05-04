@@ -9,7 +9,10 @@ if TYPE_CHECKING:
 
   from aiohttp import ClientSession
 
-async def get_upcitemdb(cs: ClientSession, upc: Union[str,int]) -> False|Item:
+
+async def get_upcitemdb(
+  cs: ClientSession, upc: Union[str, int]
+) -> False | Item:
   url = f"https://api.upcitemdb.com/prod/trial/lookup?upc={upc}"
 
   async with cs.get(url) as resp:
@@ -17,12 +20,9 @@ async def get_upcitemdb(cs: ClientSession, upc: Union[str,int]) -> False|Item:
     data = await resp.json()
     if data["code"] != "OK" or data["total"] == 0:
       return False
-    
+
     item = data["items"][0]
     name = item["title"]
-    i = Item(
-      upc = upc,
-      name = name
-    )
+    i = Item(upc=upc, name=name)
 
     return i

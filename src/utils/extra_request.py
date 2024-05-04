@@ -11,6 +11,7 @@ if TYPE_CHECKING:
 
   from asyncpg import Connection, Pool
 
+
 class Application(BaseApplication):
   pool: Pool
   LOG: Logger

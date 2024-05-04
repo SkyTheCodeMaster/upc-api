@@ -21,18 +21,26 @@ with open("config.toml") as f:
   PG_URL: str = config["postgres"]["url"]
   PG_PASS: str = config["postgres"]["password"]
 
+
 async def file_sender(file_name=None):
-  async with aiofiles.open(file_name, 'rb') as f:
-    chunk = await f.read(64*1024)
+  async with aiofiles.open(file_name, "rb") as f:
+    chunk = await f.read(64 * 1024)
     while chunk:
       yield chunk
-      chunk = await f.read(64*1024)
+      chunk = await f.read(64 * 1024)
 
-async def backup_task(cs: ClientSession, conn: Connection) -> str|False:
+
+async def backup_task(cs: ClientSession, conn: Connection) -> str | False:
   "Backup the items db as a CSV to the paste server."
   # we need to get the items first into a csv.
   try:
-    await conn.copy_from_query("SELECT * FROM Items", output=BACKUP_FILE, format="csv", delimiter=",", header=True)
+    await conn.copy_from_query(
+      "SELECT * FROM Items",
+      output=BACKUP_FILE,
+      format="csv",
+      delimiter=",",
+      header=True,
+    )
     # Now we have our CSV file to POST to the paste server.
     now = datetime.datetime.now()
     current_date = now.strftime("%Y-%m-%d_%H:%M")
@@ -40,17 +48,24 @@ async def backup_task(cs: ClientSession, conn: Connection) -> str|False:
       "title": f"UPC Backup {current_date}",
       "visibility": 2,
       "folder": "UPC Backups",
-      "syntax": "plaintext"
+      "syntax": "plaintext",
     }
-    headers = {
-      "Authorization": API_KEY
-    }
+    headers = {"Authorization": API_KEY}
 
-    async with cs.post(URL, params=query, headers=headers, data=file_sender(file_name=BACKUP_FILE)) as resp:
+    async with cs.post(
+      URL,
+      params=query,
+      headers=headers,
+      data=file_sender(file_name=BACKUP_FILE),
+    ) as resp:
       if resp.status == 200:
         paste_id = await resp.text()
         # good, now we should push this ID into the database.
-        await conn.execute("INSERT INTO Backups (PasteID, Date) VALUES ($1, $2);", paste_id, int(now.timestamp()))
+        await conn.execute(
+          "INSERT INTO Backups (PasteID, Date) VALUES ($1, $2);",
+          paste_id,
+          int(now.timestamp()),
+        )
         LOG.info("Completed backup")
         return paste_id
       else:

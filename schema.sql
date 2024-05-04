@@ -6,7 +6,8 @@ CREATE TABLE IF NOT EXISTS Items (
   upc TEXT PRIMARY KEY,
   name TEXT,
   quantity TEXT,
-  quantityunit TEXT
+  quantityunit TEXT,
+  type TEXT -- upca, ean13, etc
 );
 
 CREATE TABLE IF NOT EXISTS Backups (
@@ -19,5 +20,6 @@ CREATE TABLE IF NOT EXISTS Backups (
 CREATE TABLE IF NOT EXISTS Misses (
   upc TEXT PRIMARY KEY,
   converted BOOLEAN, -- Whether or not the UPC was originally a UPC-E.
-  date BIGINT
+  date BIGINT,
+  type TEXT -- upca, ean13, etc
 );

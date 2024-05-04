@@ -4,7 +4,8 @@ import re
 
 pattern = re.compile("^([+-]?(?:[0-9]*[.])?[0-9]+)\s*(.+)$")
 
-def split_size(size: str) -> False|tuple[str,str]:
+
+def split_size(size: str) -> False | tuple[str, str]:
   "Take in an input like '2 litres' and return ('2','litre')"
 
   if size is None:

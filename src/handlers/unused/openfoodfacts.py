@@ -11,23 +11,22 @@ if TYPE_CHECKING:
 
   from aiohttp import ClientSession
 
-async def get_openfoodfacts(cs: ClientSession, upc: Union[str,int]) -> False|Item:
+
+async def get_openfoodfacts(
+  cs: ClientSession, upc: Union[str, int]
+) -> False | Item:
   url = f"https://world.openfoodfacts.org/api/v2/product/{upc}"
 
   async with cs.get(url) as resp:
     # We need to process the raw html. Yikes lol
 
     data = await resp.json()
-    if data.get("status",0) != 1:
+    if data.get("status", 0) != 1:
       return False
 
     product_info = data.get("product")
     product_name = product_info.get("product_name")
-  
 
-    i = Item(
-      upc = upc,
-      name = product_name
-    )
+    i = Item(upc=upc, name=product_name)
 
     return i

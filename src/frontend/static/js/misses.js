@@ -14,6 +14,9 @@ function generate_table_row(miss) {
   // Take in object of upc, name, quanity, and quantity_unit (output from API)
   // Create all the elements
   let tr = document.createElement("tr");
+  let td_type = document.createElement("td");
+  td_type.innerText = miss["type"];
+
   let td_upc = document.createElement("td");
   td_upc.innerText = miss["upc"];
 

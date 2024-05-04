@@ -12,7 +12,10 @@ if TYPE_CHECKING:
 
   from aiohttp import ClientSession
 
-async def get_upcdatabasecom(cs: ClientSession, upc: Union[str,int]) -> False|Item:
+
+async def get_upcdatabasecom(
+  cs: ClientSession, upc: Union[str, int]
+) -> False | Item:
   url = f"https://www.upcdatabase.com/item/{upc}"
 
   async with cs.get(url) as resp:
@@ -22,7 +25,10 @@ async def get_upcdatabasecom(cs: ClientSession, upc: Union[str,int]) -> False|It
 
     soup = BeautifulSoup(html, "html.parser")
 
-    if "The UPC you were looking for currently has no record in the database." in soup.get_text():
+    if (
+      "The UPC you were looking for currently has no record in the database."
+      in soup.get_text()
+    ):
       return False
 
     # Extract all the table rows
@@ -43,15 +49,10 @@ async def get_upcdatabasecom(cs: ClientSession, upc: Union[str,int]) -> False|It
         break
 
     try:
-      quantity,quantity_name = split_size(size)
+      quantity, quantity_name = split_size(size)
     except Exception:
-      quantity,quantity_name = None,None
-      
-    i = Item(
-      upc = upc,
-      name = name,
-      quantity = quantity,
-      quantity_unit = quantity_name
-    )
+      quantity, quantity_name = None, None
+
+    i = Item(upc=upc, name=name, quantity=quantity, quantity_unit=quantity_name)
 
     return i

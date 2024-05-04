@@ -14,6 +14,8 @@ function generate_table_row(upc) {
   // Take in object of upc, name, quanity, and quantity_unit (output from API)
   // Create all the elements
   let tr = document.createElement("tr");
+  let td_type = document.createElement("td");
+  td_type.innerText = upc["type"];
   let td_upc = document.createElement("td");
   td_upc.innerText = upc["upc"];
   let td_name = document.createElement("td");
@@ -34,6 +36,7 @@ function generate_table_row(upc) {
   // Nest elements
   td_button_lookup.appendChild(button_lookup);
   td_button_edit.appendChild(button_edit);
+  tr.append(td_type);
   tr.append(td_upc);
   tr.append(td_name);
   tr.append(td_quantity);

@@ -9,7 +9,8 @@ if TYPE_CHECKING:
 
   from asyncpg import Connection
 
-async def get_local(conn: Connection, upc: Union[str,int]) -> False|Item:
+
+async def get_local(conn: Connection, upc: Union[str, int]) -> False | Item:
   record = await conn.fetchrow("SELECT * FROM Items WHERE upc=$1;", upc)
   if not record:
     return False

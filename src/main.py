@@ -13,48 +13,37 @@ import asyncpg
 from utils.get_routes import get_module
 from utils.logger import CustomWebLogger
 from utils.pg_pool_middleware import pg_pool_middleware
-import aiohttp_cors
 
 LOGFMT = "[%(filename)s][%(asctime)s][%(levelname)s] %(message)s"
 LOGDATEFMT = "%Y/%m/%d-%H:%M:%S"
 
-handlers = [
-  logging.StreamHandler()
-]
+handlers = [logging.StreamHandler()]
 
 with open("config.toml") as f:
   config = tomllib.loads(f.read())
 
-if config['log']['file']:
-  handlers.append(logging.FileHandler(config['log']))
+if config["log"]["file"]:
+  handlers.append(logging.FileHandler(config["log"]))
 
 logging.basicConfig(
-  handlers = handlers,
+  handlers=handlers,
   format=LOGFMT,
   datefmt=LOGDATEFMT,
   level=logging.INFO,
 )
 
-coloredlogs.install(
-  fmt=LOGFMT,
-  datefmt=LOGDATEFMT
-)
+coloredlogs.install(fmt=LOGFMT, datefmt=LOGDATEFMT)
 
 LOG = logging.getLogger(__name__)
 
 app = web.Application(
-  logger = CustomWebLogger(LOG),
-  middlewares=[
-    pg_pool_middleware
-  ]
+  logger=CustomWebLogger(LOG), middlewares=[pg_pool_middleware]
 )
 api_app = web.Application(
-  logger = CustomWebLogger(LOG),
-  middlewares=[
-    pg_pool_middleware
-  ]
+  logger=CustomWebLogger(LOG), middlewares=[pg_pool_middleware]
 )
-  
+
+
 async def startup():
   try:
     session = aiohttp.ClientSession()
@@ -62,7 +51,6 @@ async def startup():
       config["postgres"]["url"],
       password=config["postgres"]["password"],
       max_size=250,
-
     )
     app.cs = session
     api_app.cs = session
@@ -76,10 +64,10 @@ async def startup():
     disabled_cogs: list[str] = []
 
     for cog in [
-        f.replace(".py","") 
-        for f in os.listdir("api") 
-        if os.path.isfile(os.path.join("api",f)) and f.endswith(".py")
-      ]:
+      f.replace(".py", "")
+      for f in os.listdir("api")
+      if os.path.isfile(os.path.join("api", f)) and f.endswith(".py")
+    ]:
       if cog not in disabled_cogs:
         LOG.info(f"Loading {cog}...")
         try:
@@ -101,11 +89,13 @@ async def startup():
     await runner.setup()
     site = web.TCPSite(
       runner,
-      config['srv']['host'],
-      config['srv']['port'],
+      config["srv"]["host"],
+      config["srv"]["port"],
     )
     await site.start()
-    print(f"Started server on http://{config['srv']['host']}:{config['srv']['port']}...\nPress ^C to close...")
+    print(
+      f"Started server on http://{config['srv']['host']}:{config['srv']['port']}...\nPress ^C to close..."
+    )
     await asyncio.sleep(math.inf)
   except KeyboardInterrupt:
     pass
@@ -113,16 +103,17 @@ async def startup():
     LOG.error("PostgreSQL connection timeout. Check the connection arguments!")
   finally:
     try:
-      await site.stop() 
-    except Exception: 
+      await site.stop()
+    except Exception:
       pass
-    try: 
+    try:
       await session.close()
-    except Exception: 
+    except Exception:
       pass
-    try: 
+    try:
       await pool.close()
-    except Exception: 
+    except Exception:
       pass
+
 
 asyncio.run(startup())
