@@ -29,35 +29,6 @@ limiter = Limiter(default_keyfunc, exempt_ips)
 routes = web.RouteTableDef()
 
 
-@routes.get("/upc/{upc:\d+}")
-@limiter.limit("30/minute")
-async def get_upc_aiohttp(request: Request) -> Response:
-  print("got request", request)
-  upc = request.match_info["upc"]
-  code, guess = validate(upc)
-  if code is False:
-    return Response(status=400, body=f"Invalid {guess}")
-
-  item = await get_upc(
-    request.pool, request.session, upc, local_only=local_only
-  )
-  if item:
-    return web.json_response(item.dump)
-  else:
-    timestamp = math.floor(datetime.datetime.utcnow().timestamp())
-    try:
-      await request.conn.execute(
-        """INSERT INTO Misses (Type, UPC, Converted, Date) VALUES ($1, $2, $3);""",
-        guess["guess"],
-        upc,
-        guess["upce.converted"],
-        timestamp,
-      )
-    except UniqueViolationError:
-      pass  # This doesn't matter.
-    return web.Response(status=404)
-
-
 @routes.get("/upc/bulk/")
 @limiter.limit("30/minute")
 async def get_upc_bulk_aiohttp(request: Request) -> Response:
@@ -297,6 +268,34 @@ async def get_upc_search(request: Request) -> Response:
   out = {"total": count, "returned": len(items), "items": items}
 
   return web.json_response(out)
+
+@routes.get("/upc/{upc:\d+}")
+@limiter.limit("30/minute")
+async def get_upc_aiohttp(request: Request) -> Response:
+  print("got request", request)
+  upc = request.match_info["upc"]
+  code, guess = validate(upc)
+  if code is False:
+    return Response(status=400, body=f"Invalid {guess}")
+
+  item = await get_upc(
+    request.pool, request.session, upc, local_only=local_only
+  )
+  if item:
+    return web.json_response(item.dump)
+  else:
+    timestamp = math.floor(datetime.datetime.utcnow().timestamp())
+    try:
+      await request.conn.execute(
+        """INSERT INTO Misses (Type, UPC, Converted, Date) VALUES ($1, $2, $3);""",
+        guess["guess"],
+        upc,
+        guess["upce.converted"],
+        timestamp,
+      )
+    except UniqueViolationError:
+      pass  # This doesn't matter.
+    return web.Response(status=404)
 
 
 async def setup(app: web.Application) -> None:
