@@ -10,6 +10,7 @@ def validate(code: str) -> tuple[str|False,dict[str,str]]:
     if len(code) == 8:
       # This is UPC-E, convert it.
       error["upce.converted"] = True
+      original = code
       code = convert_upce(code)
 
     if len(code) == 12:
@@ -17,6 +18,8 @@ def validate(code: str) -> tuple[str|False,dict[str,str]]:
       error["guess"] = "upca" if not error["upce.converted"] else "upce"
       valid = validate_upca(code)
       if valid:
+        if error["upce.converted"]:
+          return original,error
         return code,error
       else:
         return False,error

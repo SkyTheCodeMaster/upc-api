@@ -40,10 +40,9 @@ async def get_upc_bulk_aiohttp(request: Request) -> Response:
     upc_list = list(set(upc_list))
     total_requested = len(upc_list)
     for upc in upc_list:
-      if upc.isdigit():
-        code, guess = validate(upc)
-        if code is not False:
-          good.append(code)
+      code, guess = validate(upc)
+      if code is not False:
+        good.append(code)
   except Exception:
     return Response(status=400, body="error in parsing upc list")
 
