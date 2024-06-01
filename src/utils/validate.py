@@ -35,6 +35,7 @@ def validate(code: str) -> tuple[str|False,dict[str,str]]:
   except Exception as e:
     error["exception"] = e
     return False,error
+  return False,error
 
 def identify_type(code: str) -> str:
   "Takes in a code, and returns an encoding or 'invalid'"

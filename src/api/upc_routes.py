@@ -44,6 +44,7 @@ async def get_upc_bulk_aiohttp(request: Request) -> Response:
       if code is not False:
         good.append(code)
   except Exception:
+    request.LOG.exception(f"Error in parsing UPC list. {upc}")
     return Response(status=400, body="error in parsing upc list")
 
   if len(good) > 50:
