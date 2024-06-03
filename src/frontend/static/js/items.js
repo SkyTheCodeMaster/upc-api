@@ -1,47 +1,32 @@
 "use strict";
 
-/*
-<tr>
-  <td>{{ row.upc }}</td>
-  <td>{{ row.name }}</td>
-  <td>{{ row.quantity }}{{ row.quantity_unit }}</td>
-  <td><button class="button is-success is-small" onclick="window.location='/lookup#{{ row.upc }}'">View</button></td>
-  <td><button class="button is-link is-small" onclick="window.location='/publish#{{ row.upc }}'">Edit</button></td>
-</tr>
-*/
 
 function generate_table_row(upc) {
   // Take in object of upc, name, quanity, and quantity_unit (output from API)
   // Create all the elements
-  let tr = document.createElement("tr");
-  let td_type = document.createElement("td");
-  td_type.innerText = upc["type"];
-  let td_upc = document.createElement("td");
-  td_upc.innerText = upc["upc"];
-  let td_name = document.createElement("td");
-  td_name.innerText = upc["name"];
-  let td_quantity = document.createElement("td");
-  td_quantity.innerText = upc["quantity"] + upc["quantity_unit"];
-  let td_button_lookup = document.createElement("td");
-  let button_lookup = document.createElement("button");
-  button_lookup.classList.add("button", "is-success", "is-small");
+
+  let td_type = create_element("td",{"inner_text":upc["type"]});
+  let td_upc = create_element("td",{"inner_text":upc["upc"]});
+  let td_name = create_element("td",{"inner_text":upc["name"]});
+  let td_quantity = create_element("td",{"inner_text":upc["quantity"] + upc["quantity_unit"]});
+  let button_lookup = create_element("button", {"classes":["button","is-success","is-small"],"inner_text":"View"});
   button_lookup.onclick = function() {window.location="/lookup#"+upc["upc"];}
-  button_lookup.innerText = "View";
-  let td_button_edit = document.createElement("td");
-  let button_edit = document.createElement("button");
-  button_edit.classList.add("button", "is-link", "is-small");
+  let td_button_lookup = create_element("td",{"children":[button_lookup]});
+  let button_edit = create_element("button", {"classes":["button","is-link","is-small"],"inner_text":"Edit"});
   button_edit.onclick = function() {window.location="/publish#"+upc["upc"];}
-  button_edit.innerText = "Edit";
+  let td_button_edit = create_element("td",{"children":[button_edit]});
   
   // Nest elements
-  td_button_lookup.appendChild(button_lookup);
-  td_button_edit.appendChild(button_edit);
-  tr.append(td_type);
-  tr.append(td_upc);
-  tr.append(td_name);
-  tr.append(td_quantity);
-  tr.append(td_button_lookup);
-  tr.append(td_button_edit);
+  let tr = create_element("tr",{
+    "children": [
+      td_type,
+      td_upc,
+      td_name,
+      td_quantity,
+      td_button_lookup,
+      td_button_edit
+    ]
+  })
 
   return tr;
 }
@@ -49,6 +34,7 @@ function generate_table_row(upc) {
 function fill_table(items) {
   // This is the resp["items"] part of API response.
   let table_body = document.getElementById("item_table_tbody");
+  remove_children(table_body);
 
   for (let item of items) {
     let tr = generate_table_row(item);
@@ -153,36 +139,39 @@ function fill_page_selector(data) {
 
 }
 
-function fill_all() {
+async function fill_all() {
   let page = Number(window.location.hash.slice(1));
   let offset = page*50;
-  fetch("/api/upc/list/?offset="+offset)
-    .then(res => res.json())
-    .then(data => {
-      let items = data["items"];
-      fill_table(items);
-      // Fill the showing_x_of_y_items_p element.
-      let showing_x_of_y_items_h1 = document.getElementById("showing_x_of_y_items_h1");
-      showing_x_of_y_items_h1.innerText = format(showing_x_of_y_items_h1.innerText, data["returned"], data["total"]);
-      let page_x_of_y_items_h1 = document.getElementById("page_x_of_y_items_h1");
-      let current_page = page+1;
-      let total_pages = Math.ceil(data["total"]/50);
-      page_x_of_y_items_h1.innerText = format(page_x_of_y_items_h1.innerText, current_page, total_pages);
 
-      fill_page_selector(data)
-    })
+  let request = await fetch("/api/upc/list/?offset="+offset);
+  let data = await request.json();
+
+  let items = data["items"];
+  fill_table(items);
+  // Fill the showing_x_of_y_items_p element.
+  let showing_x_of_y_items_h1 = document.getElementById("showing_x_of_y_items_h1");
+  showing_x_of_y_items_h1.innerText = format(showing_x_of_y_items_h1.innerText, data["returned"], data["total"]);
+  let page_x_of_y_items_h1 = document.getElementById("page_x_of_y_items_h1");
+  let current_page = page+1;
+  let total_pages = Math.ceil(data["total"]/50);
+  page_x_of_y_items_h1.innerText = format(page_x_of_y_items_h1.innerText, current_page, total_pages);
+
+  fill_page_selector(data)
 }
 
-function setup() {
+async function setup() {
   let current_page = Number(window.location.hash.slice(1));
   if (isNaN(current_page)) {
     window.location.hash = "0";
     window.location.reload();
   }
-  fill_all();
+  await fill_all();
 }
 
-document.addEventListener("DOMContentLoaded", setup);
-if (document.readyState == "complete") {
-  setup();
+if (document.readyState == "loading") {
+  document.addEventListener("DOMContentLoaded", setup);
+} else {
+  setup().catch(error => {
+    console.error("Setup failed:", error);
+  });
 }

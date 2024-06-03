@@ -11,9 +11,9 @@
   <body>
     <script id="replace_with_navbar" src="/js/nav.js"></script>
     <div class="box m-4">
-      <h1 class="title is-4" id="database_info_items">There are {0} items in the database.</h1>
-      <h1 class="title is-4" id="database_info_total_backups">There are {0} total database backups.</h1>
-      <h1 class="title is-4" id="database_info_database_size">The database is {0}.</h1>
+      <h1 class="title is-4" id="database_info_items" data-text="There are {0} items in the database.">There are {0} items in the database.</h1>
+      <h1 class="title is-4" id="database_info_total_backups" data-text="There are {0} total database backups.">There are {0} total database backups.</h1>
+      <h1 class="title is-4" id="database_info_database_size" data-text="The database is {0}.">The database is {0}.</h1>
     </div>
     <div class="box m-4">
       <h1 class="title is-5">Backup Browser</h1>
@@ -26,8 +26,8 @@
         </ul>
       </nav>
       <!-- This is the actual table contents -->
-      <h1 id="showing_x_of_y_backups_h1" class="title is-4 has-text-centered my-0">Showing {0} of {1} backups.</h1>
-      <h1 id="page_x_of_y_backups_h1" class="title is-6 has-text-centered my-1">Page {0} of {1}.</h1>
+      <h1 id="showing_x_of_y_backups_h1" class="title is-4 has-text-centered my-0" data-text="Showing {0} of {1} backups.">Showing {0} of {1} backups.</h1>
+      <h1 id="page_x_of_y_backups_h1" class="title is-6 has-text-centered my-1" data-text="Page {0} of {1}."></h1>
       <table class="table is-striped is-bordered mt-0" style="margin: 3em auto;">
         <thead>
           <tr>

@@ -1,17 +1,17 @@
-function load_item_count() {
-  fetch("/api/database/get/")
-    .then(res => res.json())
-    .then(info => {
-      const item_count_title = document.getElementById("item_count_title");
-      item_count_title.innerText = format(item_count_title.innerText, info["items"]);
-    })
+async function load_item_count() {
+  let request = await fetch("/api/database/get/");
+  let info = await request.json();
+  format_element_text("item_count_title", info["items"]);
 }
 
-function setup() {
-  load_item_count();
+async function setup() {
+  await load_item_count();
 }
 
-document.addEventListener("DOMContentLoaded", setup);
-if (document.readyState == "complete") {
-  setup();
+if (document.readyState == "loading") {
+  document.addEventListener("DOMContentLoaded", setup);
+} else {
+  setup().catch(error => {
+    console.error("Setup failed:", error);
+  });
 }

@@ -136,38 +136,31 @@ function fill_page_selector(data) {
 
 }
 
-function fill_all() {
+async function fill_all() {
   let page = Number(window.location.hash.slice(1));
   let offset = page*50;
-  fetch("/api/database/backups/list/?offset="+offset)
-    .then(res => res.json())
-    .then(data => {
-      let backups = data["backups"];
-      fill_table(backups);
-      // Fill the showing_x_of_y_backups_p element.
-      let showing_x_of_y_backups_h1 = document.getElementById("showing_x_of_y_backups_h1");
-      showing_x_of_y_backups_h1.innerText = format(showing_x_of_y_backups_h1.innerText, data["returned"], data["total"]);
-      let page_x_of_y_backups_h1 = document.getElementById("page_x_of_y_backups_h1");
-      let current_page = page+1;
-      let total_pages = Math.ceil(data["total"]/50);
-      page_x_of_y_backups_h1.innerText = format(page_x_of_y_backups_h1.innerText, current_page, total_pages);
 
-      fill_page_selector(data)
-    })
-  fetch("/api/database/get/")
-    .then(res => res.json())
-    .then(data => {
-      let database_info_items = document.getElementById("database_info_items");
-      let database_info_total_backups = document.getElementById("database_info_total_backups");
-      let database_info_database_size = document.getElementById("database_info_database_size");
+  let backups_request = await fetch("/api/database/backups/list/?offset="+offset);
+  let backups_data = await backups_request.json();
+  
+  let backups = backups_data["backups"];
+  fill_table(backups);
+  // Fill the showing_x_of_y_backups_p element.
+  format_element_text("showing_x_of_y_backups_h1", backups_data["returned"], backups_data["total"]);
+  let current_page = page+1;
+  let total_pages = Math.ceil(backups_data["total"]/50);
+  format_element_text("page_x_of_y_backups_h1", current_page, total_pages);
 
-      database_info_items.innerText = format(database_info_items.innerText, data["items"]);
-      database_info_total_backups.innerText = format(database_info_total_backups.innerText, data["backups"]);
-      database_info_database_size.innerText = format(database_info_database_size.innerText, data["db_size"]);
-    })
+  fill_page_selector(backups_data)
+
+  let db_request = await fetch("/api/database/get/");
+  let db_data = await db_request.json();
+  format_element_text("database_info_items", db_data["items"]);
+  format_element_text("database_info_total_backups", db_data["backups"]);
+  format_element_text("database_info_database_size", db_data["db_size"]);
 }
 
-function setup() {
+async function setup() {
   let current_page = Number(window.location.hash.slice(1));
   if (isNaN(current_page)) {
     window.location.hash = "0";
@@ -176,7 +169,10 @@ function setup() {
   fill_all();
 }
 
-document.addEventListener("DOMContentLoaded", setup);
-if (document.readyState == "complete") {
-  setup();
+if (document.readyState == "loading") {
+  document.addEventListener("DOMContentLoaded", setup);
+} else {
+  setup().catch(error => {
+    console.error("Setup failed:", error);
+  });
 }

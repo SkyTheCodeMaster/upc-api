@@ -13,41 +13,38 @@
 function generate_table_row(miss) {
   // Take in object of upc, name, quanity, and quantity_unit (output from API)
   // Create all the elements
-  let tr = document.createElement("tr");
-  let td_type = document.createElement("td");
-  td_type.innerText = miss["type"];
 
-  let td_upc = document.createElement("td");
-  td_upc.innerText = miss["upc"];
+  let td_type = create_element("td",{"inner_text":miss["type"]});
+  let td_upc = create_element("td",{"inner_text":miss["upc"]});
+  let td_converted = create_element("td",{"inner_text":miss["converted"]});
+  let td_date = create_element("td",{"inner_text":miss["date"]});
 
-  let td_converted = document.createElement("td");
-  td_converted.innerText = miss["converted"];
-
-  let td_date = document.createElement("td");
-  td_date.innerText = miss["date"];
-
-  let td_button_create = document.createElement("td");
-  let button_create = document.createElement("button");
-  button_create.classList.add("button", "is-link", "is-small");
+  let button_create = create_element("button",{"classes":["button","is-link","is-small"],"inner_text":"Create"});
   button_create.onclick = function() {window.location="/publish#"+miss["upc"];}
-  button_create.innerText = "Create";
+  let td_button_create = create_element("td",{"children":[button_create]});
 
-  let td_button_google = document.createElement("td");
-  let button_google = document.createElement("a");
-  button_google.classList.add("button", "is-success", "is-small");
-  button_google.setAttribute("href", format("https://www.google.com/search?q={0}", miss["upc"]));
-  button_google.setAttribute("target", "_blank");
-  button_google.innerText = "Google";
-  
-  // Nest elements
-  td_button_google.appendChild(button_google);
-  td_button_create.appendChild(button_create);
-  tr.append(td_type);
-  tr.append(td_upc);
-  tr.append(td_converted);
-  tr.append(td_date);
-  tr.append(td_button_create);
-  tr.append(td_button_google);
+  let button_google = create_element("a",{
+    "classes": [
+      "button",
+      "is-success",
+      "is-small"
+    ],
+    "inner_text":"Google",
+    "attributes": {
+      "href": format("https://www.google.com/search?q={0}", miss["upc"]),
+      "target": "_blank"
+    }
+  });
+  let td_button_google = create_element("td",{"children":[button_google]});
+
+  let tr = create_element("tr",{"children":[
+    td_type,
+    td_upc,
+    td_converted,
+    td_date,
+    td_button_create,
+    td_button_google
+  ]})
 
   return tr;
 }
@@ -159,27 +156,27 @@ function fill_page_selector(data) {
 
 }
 
-function fill_all() {
+async function fill_all() {
   let page = Number(window.location.hash.slice(1));
   let offset = page*50;
-  fetch("/api/upc/misses/?offset="+offset)
-    .then(res => res.json())
-    .then(data => {
-      let misses = data["misses"];
-      fill_table(misses);
-      // Fill the showing_x_of_y_misses_p element.
-      let showing_x_of_y_misses_h1 = document.getElementById("showing_x_of_y_misses_h1");
-      showing_x_of_y_misses_h1.innerText = format(showing_x_of_y_misses_h1.innerText, data["returned"], data["total"]);
-      let page_x_of_y_misses_h1 = document.getElementById("page_x_of_y_misses_h1");
-      let current_page = page+1;
-      let total_pages = Math.ceil(data["total"]/50);
-      page_x_of_y_misses_h1.innerText = format(page_x_of_y_misses_h1.innerText, current_page, total_pages);
 
-      fill_page_selector(data)
-    })
+  let request = await fetch("/api/upc/misses/?offset="+offset);
+  let data = await request.json();
+
+  let misses = data["misses"];
+  fill_table(misses);
+  // Fill the showing_x_of_y_misses_p element.
+  let showing_x_of_y_misses_h1 = document.getElementById("showing_x_of_y_misses_h1");
+  showing_x_of_y_misses_h1.innerText = format(showing_x_of_y_misses_h1.innerText, data["returned"], data["total"]);
+  let page_x_of_y_misses_h1 = document.getElementById("page_x_of_y_misses_h1");
+  let current_page = page+1;
+  let total_pages = Math.ceil(data["total"]/50);
+  page_x_of_y_misses_h1.innerText = format(page_x_of_y_misses_h1.innerText, current_page, total_pages);
+
+  fill_page_selector(data)
 }
 
-function setup() {
+async function setup() {
   let current_page = Number(window.location.hash.slice(1));
   if (isNaN(current_page)) {
     window.location.hash = "0";
@@ -188,7 +185,10 @@ function setup() {
   fill_all();
 }
 
-document.addEventListener("DOMContentLoaded", setup);
-if (document.readyState == "complete") {
-  setup();
+if (document.readyState == "loading") {
+  document.addEventListener("DOMContentLoaded", setup);
+} else {
+  setup().catch(error => {
+    console.error("Setup failed:", error);
+  });
 }
