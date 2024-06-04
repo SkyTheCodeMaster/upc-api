@@ -49,92 +49,123 @@ function fill_page_selector(data) {
   let pagination_list = document.getElementById("pagination_list");
   let pagination_next = document.getElementById("pagination_next");
   let pagination_previous = document.getElementById("pagination_previous");
+  let pagination_list_bottom = document.getElementById("pagination_list_bottom");
+  let pagination_next_bottom = document.getElementById("pagination_next_bottom");
+  let pagination_previous_bottom = document.getElementById("pagination_previous_bottom");
 
+  async function go_to_page(pg) {
+    window.location.hash = pg;
+    //window.location.reload();
+    await fill_all();
+  }
+
+  // Clear old data
+  remove_children(pagination_list);
+  remove_children(pagination_list_bottom);
 
   // Make buttons work.
-  pagination_previous.onclick = function() { window.location.hash = current_page-1; window.location.reload(); }
-  pagination_next.onclick = function() { window.location.hash = current_page+1; window.location.reload(); }
+  pagination_previous.onclick = async function() { await go_to_page(current_page-1); }
+  pagination_next.onclick = async function() { await go_to_page(current_page+1); }
+  pagination_previous_bottom.onclick = async function() { await go_to_page(current_page-1); }
+  pagination_next_bottom.onclick = async function() { await go_to_page(current_page+1); }
 
   if (current_page == 0) {
     // We don't need a previous if the page is 0.
     pagination_previous.classList.add("is-disabled");
     pagination_previous.setAttribute("disabled", true);
     pagination_previous.onclick = function() {};
+    pagination_previous_bottom.classList.add("is-disabled");
+    pagination_previous_bottom.setAttribute("disabled", true);
+    pagination_previous_bottom.onclick = function() {};
   }
   if (current_page == total_pages-1) {
     pagination_next.classList.add("is-disabled");
     pagination_next.setAttribute("disabled", true)
     pagination_next.onclick = function() {};
+    pagination_next_bottom.classList.add("is-disabled");
+    pagination_next_bottom.setAttribute("disabled", true)
+    pagination_next_bottom.onclick = function() {};
   }
 
   // For the list, we want to show:
   // 1 ... current_page-1, current_page, current_page+1 ... total_pages
   // and hide the (... current_page+-1) if that is 1 or total_pages.
   // Build the two end elements.
-  let li_goto_one = document.createElement("li");
-  let button_goto_one = document.createElement("a");
-  button_goto_one.classList.add("pagination-link");
-  button_goto_one.innerText = "1";
-  button_goto_one.onclick = function() { window.location.hash = 0; window.location.reload(); }
-  li_goto_one.appendChild(button_goto_one);
+  let button_goto_one = create_element("a", {
+    "classes":[
+      "pagination-link"
+    ],
+    "inner_text":"1",
+    "listeners": {
+      "click": async function() { await go_to_page(0); }
+    }
+  });
+  let li_goto_one = create_element("li", {"children":[button_goto_one]});
 
-  // Make the ellipsis elements.
-  let li_ellipsis = document.createElement("li");
-  let span_ellipsis = document.createElement("span");
-  span_ellipsis.classList.add("pagination-ellipsis");
-  span_ellipsis.innerHTML = "&hellip;"
-  li_ellipsis.appendChild(span_ellipsis)
+  let span_ellipsis = create_element("span", {"classes":["pagination-ellipsis"],"inner_html":"&hellip;"});
+  let li_ellipsis = create_element("li", {"children":[span_ellipsis]});
 
-  // Make the last page element
-  let li_goto_end = document.createElement("li");
-  let button_goto_end = document.createElement("a");
-  button_goto_end.classList.add("pagination-link");
-  button_goto_end.innerText = total_pages;
-  button_goto_end.onclick = function() { window.location.hash = total_pages-1; window.location.reload(); }
-  li_goto_end.appendChild(button_goto_end);
+  let button_goto_end = create_element("a", {
+    "classes":[
+      "pagination-link"
+    ],
+    "inner_text":total_pages,
+    "listeners": {
+      "click": async function() { await go_to_page(total_pages-1); }
+    }
+  });
+  let li_goto_end = create_element("li", {"children":[button_goto_end]});
 
-  // Previous page
-  let li_previous_page = document.createElement("li");
-  let button_previous_page = document.createElement("a");
-  button_previous_page.classList.add("pagination-link");
-  button_previous_page.innerText = visible_page-1;
-  button_previous_page.onclick = function() { window.location.hash = current_page-1; window.location.reload(); }
-  li_previous_page.appendChild(button_previous_page);
+  let button_previous_page = create_element("a", {
+    "classes":[
+      "pagination-link"
+    ],
+    "inner_text":visible_page-1,
+    "listeners": {
+      "click": async function() { await go_to_page(current_page-1); }
+    }
+  });
+  let li_previous_page = create_element("li", {"children":[button_previous_page]});
 
-  // Current page. Clicking it does nothing.
-  let li_current_page = document.createElement("li");
-  let button_current_page = document.createElement("a");
-  button_current_page.classList.add("pagination-link", "is-current");
-  button_current_page.innerText = visible_page;
-  li_current_page.appendChild(button_current_page);
+  let button_current_page = create_element("a", {"classes":["pagination-link","is-current"],"inner_text":visible_page});
+  let li_current_page = create_element("li", {"children":[button_current_page]});
 
-  // Next page.
-  let li_next_page = document.createElement("li");
-  let button_next_page = document.createElement("a");
-  button_next_page.classList.add("pagination-link");
-  button_next_page.innerText = visible_page+1;
-  button_next_page.onclick = function() { window.location.hash = current_page+1; window.location.reload(); }
-  li_next_page.appendChild(button_next_page);
+  let button_next_page = create_element("a", {
+    "classes":[
+      "pagination-link"
+    ],
+    "inner_text":visible_page+1,
+    "listeners": {
+      "click": async function() {await go_to_page(current_page+1); }
+    }
+  });
+  let li_next_page = create_element("li", {"children":[button_next_page]});
 
-  console.log(current_page, total_pages);
   if (current_page != 0) {
     // Also, if the current page is 0, no sense in showing the first button.
-    pagination_list.appendChild(li_goto_one);
+    pagination_list.appendChild(li_goto_one.recreate(true));
+    pagination_list_bottom.appendChild(li_goto_one.recreate(true));
   }
   if (current_page != 0 && current_page-1 != 0) {
     // The previous page is not the first, so show the side.
-    pagination_list.appendChild(li_ellipsis);
-    pagination_list.appendChild(li_previous_page);
+    pagination_list.appendChild(li_ellipsis.recreate(true));
+    pagination_list.appendChild(li_previous_page.recreate(true));
+    pagination_list_bottom.appendChild(li_ellipsis.recreate(true));
+    pagination_list_bottom.appendChild(li_previous_page.recreate(true));
   }
 
-  pagination_list.appendChild(li_current_page);
+  pagination_list.appendChild(li_current_page.recreate(true));
+  pagination_list_bottom.appendChild(li_current_page.recreate(true));
 
   if (current_page != total_pages-1) {
-    pagination_list.appendChild(li_next_page);
+    pagination_list.appendChild(li_next_page.recreate(true));
+    pagination_list_bottom.appendChild(li_next_page.recreate(true));
   }
   if (current_page+1 != total_pages && current_page+1 != total_pages-1) {
-    pagination_list.appendChild(li_ellipsis);
-    pagination_list.appendChild(li_goto_end);
+    pagination_list.appendChild(li_ellipsis.recreate(true));
+    pagination_list.appendChild(li_goto_end.recreate(true));
+    pagination_list_bottom.appendChild(li_ellipsis.recreate(true));
+    pagination_list_bottom.appendChild(li_goto_end.recreate(true));
   }
 
 }

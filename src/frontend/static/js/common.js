@@ -211,6 +211,7 @@ function delete_cookie(name) {
  * @param {string} opts.inner_html - Inner HTML of the element. Mutually exclusive with `opts.inner_text` and `opts.children`.
  * @param {HTMLElement} opts.children[] - Children to add to the element. Mutually exclusive with `opts.inner_text` and `opts.inner_html`.
  * @param {Object} opts.attributes - Attributes to apply to the element.
+ * @param {Object} opts.listeners - Event listeners to attach to the object.
  * @returns {HTMLElement}
  */
 function create_element(type, opts={}) {
@@ -267,6 +268,36 @@ function create_element(type, opts={}) {
     }
   }
 
+  if (keys.includes("listeners")) {
+    for (let [k,v] of Object.entries(opts.listeners)) {
+      element.addEventListener(k, v);
+    }
+  }
+
+  // Make element cloning easier
+
+  /**
+   * Clones the element using the same options to make it again.
+   * @param {boolean} deep - Whether or not to recreate children too.
+   * @returns {HTMLElement}
+   */
+  element.recreate = function(deep=false) {
+
+    if (deep && opts.children != null) {
+      let new_children = [];
+      for (let child of opts.children) {
+        if (child.recreate != null) {
+          new_children.push(child.recreate(deep));
+        } else {
+          new_children.push(child);
+        }
+      }
+      opts.children = new_children
+    }
+
+    return create_element(type, opts);
+  }
+
   return element;
 }
 
@@ -287,6 +318,6 @@ function format_element_text(element, ...format_args) {
   if (element.dataset.text === null) {
     throw new Error("Element does not have data-text attribute!");
   }
-  
+
   element.innerText = format(element.dataset.text, ...format_args);
 }
