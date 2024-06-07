@@ -78,7 +78,7 @@ function fill_page_selector(data) {
   }
   if (current_page == total_pages-1) {
     pagination_next.classList.add("is-disabled");
-    pagination_next.setAttribute("disabled", true)
+    pagination_next.setAttribute("disabled", true);
     pagination_next.onclick = function() {};
     pagination_next_bottom.classList.add("is-disabled");
     pagination_next_bottom.setAttribute("disabled", true)
