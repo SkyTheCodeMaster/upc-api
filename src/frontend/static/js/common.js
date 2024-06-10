@@ -356,7 +356,10 @@ async function get_auth_token(auto_redirect = true) {
  * @returns {string=true} Token in Bearer format.
  * @returns {boolean} False if unknown error while get details.
  */
-async function get_auth_token(auto_redirect = true) {
+async function get_auth_token(auto_redirect = true, use_cache = true) {
+  if (use_cache && window.sessionStorage.getItem("auth_token_cache") !== null) {
+    return window.sessionStorage.getItem("auth_token_cache");
+  }
   try {
     let user_request = await fetch("https://auth.skystuff.cc/api/user/get/", { credentials: "include" });
     if (user_request.status === 401) {
@@ -370,6 +373,8 @@ async function get_auth_token(auto_redirect = true) {
     } else if (user_request.status === 200) {
       let data = await user_request.json();
       // Now, just return the token in Bearer format.
+      window.sessionStorage.setItem("auth_token_cache", "Bearer " + data["token"]);
+      window.sessionStorage.setItem("user_details_cache", JSON.stringify(data));
       return "Bearer " + data["token"];
     } else {
       console.log("[get_auth_token] received http " + user_request.status + ": " + await user_request.text());
@@ -393,7 +398,10 @@ async function get_auth_token(auto_redirect = true) {
  * @returns {UserDetails}
  * @returns {boolean} False if unknown error while get details.
  */
-async function get_user_details(auto_redirect = true) {
+async function get_user_details(auto_redirect = true, use_cache = true) {
+  if (use_cache && window.sessionStorage.getItem("auth_token_cache") !== null) {
+    return JSON.parse(window.sessionStorage.getItem("user_details_cache"));
+  }
   try {
     let user_request = await fetch("https://auth.skystuff.cc/api/user/get/", { credentials: "include" });
     if (user_request.status === 401) {
@@ -406,6 +414,8 @@ async function get_user_details(auto_redirect = true) {
       }
     } else if (user_request.status === 200) {
       let data = await user_request.json();
+      window.sessionStorage.setItem("auth_token_cache", "Bearer " + data["token"]);
+      window.sessionStorage.setItem("user_details_cache", JSON.stringify(data));
       return data;
     } else {
       console.log("[get_user_details] received http " + user_request.status + ": " + await user_request.text());
@@ -415,3 +425,15 @@ async function get_user_details(auto_redirect = true) {
     return false;
   }
 }
+
+async function setup() {
+  let auth_data = window.sessionStorage.getItem("auth");
+  if (auth_data === null || auth_data === "") {
+    let data = await get_user_details();
+    window.sessionStorage.setItem("auth", JSON.stringify(data));
+  }
+}
+
+setup().catch(error => {
+  console.error("Setup failed:", error);
+});
