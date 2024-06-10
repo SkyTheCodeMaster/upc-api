@@ -1,3 +1,8 @@
+.fit-content {
+  width: fit-content;
+  height: fit-content;
+}
+
 .scroll-horizontal-on-mobile {
   width: 100%;
   overflow-x: auto;

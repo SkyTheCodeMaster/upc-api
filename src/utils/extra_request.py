@@ -10,12 +10,14 @@ if TYPE_CHECKING:
   from aiohttp import ClientSession
 
   from asyncpg import Connection, Pool
+  from utils.limiter import Limiter
 
 
 class Application(BaseApplication):
   pool: Pool
   LOG: Logger
   cs: ClientSession
+  limiter: Limiter
 
 
 class Request(BaseRequest):

@@ -1,32 +1,51 @@
 from __future__ import annotations
 
+import tomllib
 from typing import TYPE_CHECKING
 
 from aiohttp import web
 from aiohttp.web import Response
 
-from utils.auth import verify
+from utils.authenticate import authenticate
 from utils.backup import backup_task
+from utils.limiter import Limiter
 
 if TYPE_CHECKING:
   from utils.extra_request import Request
 
 routes = web.RouteTableDef()
 
+with open("config.toml") as f:
+  config = tomllib.loads(f.read())
+  ratelimit_exempt = config["srv"]["ratelimit_exempt"]
+
+limiter = Limiter(exempt_ips=ratelimit_exempt)
+
 
 @routes.post("/admin/backup/")
+@limiter.limit("1/m")
 async def post_api_admin_backup(request: Request) -> Response:
-  if not await verify(request):
-    return web.Response(status=403)
+  auth = await authenticate(request, cs=request.session)
+  if isinstance(auth, Response):
+    return auth
+
+  if not auth.super_admin:
+    return Response(status=401)
 
   result = await backup_task(request.session, request.conn)
   return web.Response(status=200 if result else 500)
 
 
 @routes.post("/admin/clearmisses/")
+@limiter.limit("10/m")
 async def post_admin_clearmisses(request: Request) -> Response:
-  if not await verify(request):
-    return web.Response(status=403)
+  auth = await authenticate(request, cs=request.session)
+  if isinstance(auth, Response):
+    return auth
+
+  if not auth.super_admin:
+    return Response(status=401)
+
   # Go through each UPC in missed, and if it's included in the main database, remove it.
   request.LOG.info("Checking missing UPCs...")
   missing_upc_records = await request.conn.fetch("SELECT upc FROM Misses;")

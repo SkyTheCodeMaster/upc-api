@@ -8,15 +8,17 @@ from typing import TYPE_CHECKING
 
 from aiohttp import web
 from aiohttp.web import Response
-from aiohttplimiter import Limiter, default_keyfunc
 from asyncpg.exceptions import UniqueViolationError
 
 from handlers.local import get_local
+from utils.authenticate import Key, authenticate, get_project_status, Approval
 from utils.get_item import get_upc
 from utils.item import Item
+from utils.limiter import Limiter
 from utils.validate import validate
 
 if TYPE_CHECKING:
+  from utils.authenticate import User
   from utils.extra_request import Request
 
 with open("config.toml") as f:
@@ -24,13 +26,13 @@ with open("config.toml") as f:
   exempt_ips = config["srv"]["ratelimit_exempt"]
   local_only = config["data-source"]["local_only"]
 
-limiter = Limiter(default_keyfunc, exempt_ips)
+limiter = Limiter(exempt_ips=exempt_ips)
 
 routes = web.RouteTableDef()
 
 
 @routes.get("/upc/bulk/")
-@limiter.limit("30/minute")
+@limiter.limit("30/m")
 async def get_upc_bulk_aiohttp(request: Request) -> Response:
   upc_raw = request.query["upcs"]
   total_requested = 0
@@ -83,7 +85,7 @@ async def get_upc_bulk_aiohttp(request: Request) -> Response:
 
 
 @routes.get("/upc/list/")
-@limiter.limit("30/minute")
+@limiter.limit("30/m")
 async def get_upc_list(request: Request) -> Response:
   query = request.query
 
@@ -113,6 +115,24 @@ async def get_upc_list(request: Request) -> Response:
 async def post_upc(request: Request) -> Response:
   if not request.app.config["api"]["uploading"]["enabled"]:
     return web.Response(status=403, text="Uploading disabled.")
+
+  auth = await authenticate(request, cs=request.session)
+  if isinstance(auth, Response):
+    return auth
+
+  if isinstance(auth, Key):
+    # this means its a Key
+    user: User = auth.user
+  else:
+    user: User = auth
+
+  approval = await get_project_status(user, "upc", cs=request.session)
+
+  if approval != Approval.APPROVED:
+    return Response(
+      status=401,
+      text="Please apply for project at https://auth.skystuff.cc/projects#upc",
+    )
 
   data: dict = await request.json()
   if "upc" not in data:
@@ -170,6 +190,7 @@ async def post_upc(request: Request) -> Response:
 
 
 @routes.get("/validate/bulk/")
+@limiter.limit("60/m")
 async def get_validate_bulk(request: web.Request) -> web.Response:
   upc_raw = request.query["upcs"]
   packet = {}
@@ -187,6 +208,7 @@ async def get_validate_bulk(request: web.Request) -> web.Response:
 
 
 @routes.get("/validate/{upc:.*}")
+@limiter.limit("60/m")
 async def get_validate(request: web.Request) -> web.Response:
   upc = request.match_info["upc"]
   code, error = validate(upc)
@@ -201,6 +223,7 @@ async def get_validate(request: web.Request) -> web.Response:
 
 
 @routes.get("/upc/misses/")
+@limiter.limit("30/m")
 async def get_upc_misses(request: Request) -> Response:
   query = request.query
 
@@ -236,6 +259,7 @@ async def get_upc_misses(request: Request) -> Response:
 
 
 @routes.get("/upc/search/")
+@limiter.limit("30/m")
 async def get_upc_search(request: Request) -> Response:
   query = request.query
 
@@ -271,7 +295,7 @@ async def get_upc_search(request: Request) -> Response:
 
 
 @routes.get("/upc/{upc:\d+}")
-@limiter.limit("30/minute")
+@limiter.limit("30/m")
 async def get_upc_aiohttp(request: Request) -> Response:
   print("got request", request)
   upc = request.match_info["upc"]

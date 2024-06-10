@@ -172,6 +172,15 @@ async function fill_all() {
   let offset = page*50;
 
   let backups_request = await fetch("/api/database/backups/list/?offset="+offset);
+  if (backups_request.status != 200) {
+    if (backups_request.status == 429) {
+      let retry_after = backups_request.headers.get("retry-after");
+      show_popup(format("Ratelimited! Retry after {0}s", retry_after), true, 10000);
+      return;
+    }
+    show_popup(format("Error fetching data!\nHTTP{0}: {1}", backups_request.status, await backups_request.text()), true, 10000);
+    return
+  }
   let backups_data = await backups_request.json();
   
   let backups = backups_data["backups"];
@@ -185,6 +194,15 @@ async function fill_all() {
   fill_page_selector(backups_data)
 
   let db_request = await fetch("/api/database/get/");
+  if (db_request.status != 200) {
+    if (db_request.status == 429) {
+      let retry_after = db_request.headers.get("retry-after");
+      show_popup(format("Ratelimited! Retry after {0}s", retry_after), true, 10000);
+      return;
+    }
+    show_popup(format("Error fetching data!\nHTTP{0}: {1}", db_request.status, await db_request.text()), true, 10000);
+    return
+  }
   let db_data = await db_request.json();
   format_element_text("database_info_items", db_data["items"]);
   format_element_text("database_info_total_backups", db_data["backups"]);

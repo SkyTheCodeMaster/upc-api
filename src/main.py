@@ -13,6 +13,7 @@ import asyncpg
 from utils.get_routes import get_module
 from utils.logger import CustomWebLogger
 from utils.pg_pool_middleware import pg_pool_middleware
+from utils.limiter import Limiter
 
 LOGFMT = "[%(filename)s][%(asctime)s][%(levelname)s] %(message)s"
 LOGDATEFMT = "%Y/%m/%d-%H:%M:%S"
@@ -60,6 +61,11 @@ async def startup():
     app.LOG = LOG
     app.config = config
     api_app.config = config
+    limiter = Limiter(
+      use_auth=True,
+      use_auth_cache=True,
+      exempt_ips=config["srv"]["ratelimit_exempt"],
+    )
 
     disabled_cogs: list[str] = []
 

@@ -175,6 +175,15 @@ async function fill_all() {
   let offset = page*50;
 
   let request = await fetch("/api/upc/list/?offset="+offset);
+  if (request.status != 200) {
+    if (request.status == 429) {
+      let retry_after = request.headers.get("retry-after");
+      show_popup(format("Ratelimited! Retry after {0}s", retry_after), true, 10000);
+      return;
+    }
+    show_popup(format("Error fetching data!\nHTTP{0}: {1}", request.status, await request.text()), true, 10000);
+    return
+  }
   let data = await request.json();
 
   let items = data["items"];

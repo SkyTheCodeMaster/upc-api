@@ -5,6 +5,7 @@ fetch("/sup/navbar")
   let newelem = document.createElement("div");
   newelem.innerHTML = text;
   oldelem.replaceWith(newelem);
+  get_user_area();
 });
 fetch("/sup/footer")
 .then(res => res.text())
@@ -16,18 +17,53 @@ fetch("/sup/footer")
 
   // Now that footer exists, we can fill in the details
   fetch("/api/database/get/")
-    .then(res => res.json())
-    .then(data => {
-      const footer_frontend_p = document.getElementById("footer_frontend_p");
-      const footer_backend_p = document.getElementById("footer_backend_p");
-      footer_frontend_p.innerText = format(footer_frontend_p.innerText, data["frontend_version"]);
-      footer_backend_p.innerText = format(footer_backend_p.innerText, data["api_version"]);
-    })
-})
+    .then(res => {
+      if (res.status == 429) {
+        let retry_after = request.headers.get("retry-after");
+        show_popup(format("Ratelimited! Retry after {0}s", retry_after), true, 10000);
+      } else if (res.status == 200) {
+        res.json().then(data => {
+          const footer_frontend_p = document.getElementById("footer_frontend_p");
+          const footer_backend_p = document.getElementById("footer_backend_p");
+          footer_frontend_p.innerText = format(footer_frontend_p.innerText, data["frontend_version"]);
+          footer_backend_p.innerText = format(footer_backend_p.innerText, data["api_version"]);
+        })
+      }
+    });
+});
 
 // Toggle button for navbar.
 function toggle_navmenu(burger) {
   let navbar_menu = document.getElementById("navbar_menu");
   navbar_menu.classList.toggle("is-active");
   burger.classList.toggle("is-active");
+}
+
+function get_user_area() {
+  fetch("https://auth.skystuff.cc/api/user/get/", { credentials: "include" })
+    .then(res => {
+      if (res.status == 200) {
+        res.json().then( json => {
+          window.sessionStorage.setItem("auth", JSON.stringify(json));
+          const navbar_username = document.getElementById("navbar_username");
+          const navbar_avatar = document.getElementById("navbar_avatar");
+          const navbar_admin = document.getElementById("navbar_admin");
+
+          if (json["super_admin"]) {
+            navbar_admin.style.display = "";
+          }
+
+          navbar_username.innerText = json["name"];
+          navbar_avatar.setAttribute("src", "https://avatar.skystuff.cc/avatar/" + json["name"] + "?size=48");
+        });
+      } else {
+        // User isn't logged in
+        const navbar_username = document.getElementById("navbar_username");
+        const navbar_avatar = document.getElementById("navbar_avatar");
+
+        navbar_username.innerText = "Log In";
+        navbar_username.setAttribute("href", "https://auth.skystuff.cc/login?r="+encodeURIComponent(window.location.href));
+        navbar_avatar.style.display="none";
+      }
+    }).catch(err => {});
 }
