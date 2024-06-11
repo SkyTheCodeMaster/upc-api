@@ -6,6 +6,8 @@ from typing import TYPE_CHECKING
 
 from aiohttp import web
 from aiohttp.web import Response
+
+from utils.cors import add_cors_routes
 from utils.limiter import Limiter
 
 if TYPE_CHECKING:
@@ -91,3 +93,4 @@ async def setup(app: web.Application) -> None:
   for route in routes:
     app.LOG.info(f"  ↳ {route}")
   app.add_routes(routes)
+  add_cors_routes()

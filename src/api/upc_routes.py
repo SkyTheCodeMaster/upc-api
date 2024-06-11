@@ -11,7 +11,8 @@ from aiohttp.web import Response
 from asyncpg.exceptions import UniqueViolationError
 
 from handlers.local import get_local
-from utils.authenticate import Key, authenticate, get_project_status, Approval
+from utils.authenticate import Approval, Key, authenticate, get_project_status
+from utils.cors import add_cors_routes
 from utils.get_item import get_upc
 from utils.item import Item
 from utils.limiter import Limiter
@@ -327,3 +328,4 @@ async def setup(app: web.Application) -> None:
   for route in routes:
     app.LOG.info(f"  ↳ {route}")
   app.add_routes(routes)
+  add_cors_routes()
