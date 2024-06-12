@@ -41,7 +41,7 @@ function toggle_navmenu(burger) {
 
 function get_user_area() {
   auth_data = window.sessionStorage.getItem("auth")
-  if (auth === null || auth === "") {
+  if (auth_data === null || auth_data === "") {
     fetch("https://auth.skystuff.cc/api/user/get/", { credentials: "include" })
       .then(res => {
         if (res.status == 200) {
