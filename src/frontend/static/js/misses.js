@@ -95,6 +95,11 @@ function fill_page_selector(data) {
     pagination_previous_bottom.classList.add("is-disabled");
     pagination_previous_bottom.setAttribute("disabled", true);
     pagination_previous_bottom.onclick = function() {};
+  } else {
+    pagination_previous.classList.remove("is-disabled");
+    pagination_previous.removeAttribute("disabled");
+    pagination_previous_bottom.classList.remove("is-disabled");
+    pagination_previous_bottom.removeAttribute("disabled");
   }
   if (current_page == total_pages-1) {
     pagination_next.classList.add("is-disabled");
@@ -103,6 +108,11 @@ function fill_page_selector(data) {
     pagination_next_bottom.classList.add("is-disabled");
     pagination_next_bottom.setAttribute("disabled", true)
     pagination_next_bottom.onclick = function() {};
+  } else {
+    pagination_next.classList.remove("is-disabled");
+    pagination_next.removeAttribute("disabled");
+    pagination_next_bottom.classList.remove("is-disabled");
+    pagination_next_bottom.removeAttribute("disabled");
   }
 
   // For the list, we want to show:
