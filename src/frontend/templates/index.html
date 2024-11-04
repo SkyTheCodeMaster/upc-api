@@ -5,11 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Sky's UPC Database</title>
     <link rel="stylesheet" href="/css/vendored/bulma.min.css">
-    <script src="/js/common.js" async></script>
-    <script src="/js/index.js" async></script>
+    <script src="/js/index.js" async type="module"></script>
   </head>
   <body>
-    <script id="replace_with_navbar" src="/js/nav.js"></script>
+    <script id="replace_with_navbar" src="/js/nav.js" type="module"></script>
     <div class="grid m-4">
       <div class="cell box fit-content">
         <h1 class="title">Sky's UPC Database</h1>
@@ -17,7 +16,7 @@
         <p>The only limit is a 30/minute per IP ratelimit on the get endpoint, and a 10/minute per IP ratelimit on the post endpoint.</p>
       </div>
       <div class="cell box fit-content">
-        <h1 class="title" id="item_count_title" data-text="There are currently {0} items in the database."></h1>
+        <h1 class="title" id="item_count_title" data-text="There are currently {0} items in the database.">Loading...</h1>
         <p>Click <a href="/items">here</a> to view them in a nice tabular format.</p>
       </div>
     </div>

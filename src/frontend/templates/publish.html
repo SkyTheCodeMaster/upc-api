@@ -5,24 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Sky's UPC Database</title>
     <link rel="stylesheet" href="/css/vendored/bulma.min.css">
-    <script src="/js/common.js" async></script>
-    <script src="/js/publish.js" async></script>
+    <script src="/js/publish.js" async type="module"></script>
   </head>
   <body>
-    <script id="replace_with_navbar" src="/js/nav.js"></script>
+    <script id="replace_with_navbar" src="/js/nav.js" type="module"></script>
     <div class="box m-6" style="width:fit-content;">
       <h1 class="title">UPC Edit</h1>
       <div>
-        <input class="input" type="number" style="width:15ch;" maxlength="12" id="upc-input">
-        <button class="button is-link" onclick="run_upc(this);" id="upc-submit">Check UPC</button>
+        <input class="input" type="number" style="width:15ch;" maxlength="12" id="upc_input">
+        <button class="button is-link" onclick="run_upc(this);" id="upc_submit">Check UPC</button>
       </div>
       <div class="box mt-4" style="width:fit-content;height:fit-content;">
         <h1 class="title is-4">UPC Details:</h1>
         <p id="upc-details-upc" >UPC:  </p>
-        <p>Name: </p><input class="input" type="text" id="upc-details-name"></input>
-        <p title="aka the '500' of '500ml'">Quantity: </p><input class="input" type="number" id="upc-details-quan"></input>
-        <p title="aka the 'ml' of '500ml'">Quantity Unit: </p><input class="input" type="text" id="upc-details-quan-unit"></input>
-        <button class="button is-link mt-3" style="width: 100%" onclick="submit(this);">Submit</button>
+        <p>Name: </p><input class="input" type="text" id="upc_details_name"></input>
+        <p title="aka the '500' of '500ml'">Quantity: </p><input class="input" type="number" id="upc_details_quan"></input>
+        <p title="aka the 'ml' of '500ml'">Quantity Unit: </p><input class="input" type="text" id="upc_details_quan_unit"></input>
+        <button class="button is-link mt-3" style="width: 100%" id="upc_publish">Submit</button>
       </div>
     </div>
     <div style="position:absolute;height:fit-content;bottom:0;width:100%;">

@@ -8,17 +8,14 @@ import time
 from ipaddress import ip_address, ip_network
 from typing import TYPE_CHECKING
 
-from aiohttp import hdrs, web
 from aiohttp.web import Response
-from aiohttp_remotes.exceptions import IPAddress, TooManyHeaders
 
 from utils.authenticate import authenticate
+from utils.logger import get_origin_ip
 
 if TYPE_CHECKING:
   from ipaddress import IPv4Address
-  from typing import Awaitable, Callable, List
-
-  from multidict import MultiMapping
+  from typing import Awaitable, Callable
 
   from utils.extra_request import Request
 
@@ -195,7 +192,7 @@ class Limiter:
         ident = None
 
     if ident is None:
-      ip = self.get_source_ip(request)
+      ip = get_origin_ip(request)
       if self.is_exempt(ip):
         return None
       ident = hashlib.sha512(ip.encode()).hexdigest()
@@ -227,32 +224,3 @@ class Limiter:
       # add current request to window, return None
       current_time = int(time.time())
       user_limits.append(current_time + seconds)
-      return None
-
-  def get_forwarded_for(self, headers: MultiMapping[str]) -> List[IPAddress]:
-    forwarded_for: List[str] = headers.getall(hdrs.X_FORWARDED_FOR, [])
-    if not forwarded_for:
-      return []
-    if len(forwarded_for) > 1:
-      raise TooManyHeaders(hdrs.X_FORWARDED_FOR)
-    forwarded_for = forwarded_for[0].split(",")
-    valid_ips = []
-    for a in forwarded_for:
-      addr = a.strip()
-      try:
-        if addr == "127.0.0.1":
-          continue
-        valid_ips.append(ip_address(addr))
-      except ValueError:
-        raise web.HTTPBadRequest(
-          reason=f"Invalid {hdrs.X_FORWARDED_FOR} header"
-        )
-    return valid_ips
-
-  def get_source_ip(self, request: Request) -> str:
-    # Try to get forwarded
-    forwarded = self.get_forwarded_for(request.headers)
-    if len(forwarded) > 0:
-      return str(forwarded[0])
-    else:
-      return request.remote

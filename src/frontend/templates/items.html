@@ -6,23 +6,13 @@
     <title>Sky's UPC Database</title>
     <link rel="stylesheet" href="/css/vendored/bulma.min.css">
     <link rel="stylesheet" href="/css/common.css">
-    <script src="/js/common.js" async></script>
-    <script src="/js/items.js" async></script>
+    <script src="/js/items.js" async type="module"></script>
   </head>
   <body>
-    <script id="replace_with_navbar" src="/js/nav.js"></script>
+    <script id="replace_with_navbar" src="/js/nav.js" type="module"></script>
     <div class="box m-4">
-      <!-- This is the pagination at the top -->
-      <nav class="pagination is-centered" role="navigation" aria-label="pagination">
-        <a class="pagination-previous" id="pagination_previous">Previous</a>
-        <a class="pagination-next" id="pagination_next">Next Page</a>
-        <ul class="pagination-list" id="pagination_list">
-          
-        </ul>
-      </nav>
       <!-- This is the actual table contents -->
-      <h1 id="showing_x_of_y_items_h1" class="title is-4 has-text-centered my-0">Showing {0} of {1} items.</h1>
-      <h1 id="page_x_of_y_items_h1" class="title is-6 has-text-centered my-1">Page {0} of {1}.</h1>
+      <h1 id="showing_x_items_h1" class="title is-4 has-text-centered my-0" data-text="Showing {0} items.">Loading...</h1>
       <div class="scroll-horizontal-on-mobile">
         <table class="table is-striped is-bordered mt-0" style="margin: 3em auto;">
           <thead>
@@ -39,15 +29,6 @@
           </tbody>
         </table>
       </div>
-      
-      <!-- This is the pagination at the bottom -->
-      <nav class="pagination is-centered" role="navigation" aria-label="pagination">
-        <a class="pagination-previous" id="pagination_previous_bottom">Previous</a>
-        <a class="pagination-next" id="pagination_next_bottom">Next Page</a>
-        <ul class="pagination-list" id="pagination_list_bottom">
-          
-        </ul>
-      </nav>
     </div>
     <div id="replace_with_footer"></div>
   </body>

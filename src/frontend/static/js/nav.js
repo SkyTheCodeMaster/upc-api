@@ -1,3 +1,7 @@
+"use strict";
+
+import { format, format_element_text } from "./libcommon.js";
+
 fetch("/sup/navbar")
 .then(res => res.text())
 .then(text => {
@@ -16,20 +20,25 @@ fetch("/sup/footer")
   oldelem.replaceWith(newelem);
 
   // Now that footer exists, we can fill in the details
-  fetch("/api/database/get/")
-    .then(res => {
-      if (res.status == 429) {
-        let retry_after = request.headers.get("retry-after");
-        show_popup(format("Ratelimited! Retry after {0}s", retry_after), true, 10000);
-      } else if (res.status == 200) {
-        res.json().then(data => {
-          const footer_frontend_p = document.getElementById("footer_frontend_p");
-          const footer_backend_p = document.getElementById("footer_backend_p");
-          footer_frontend_p.innerText = format(footer_frontend_p.innerText, data["frontend_version"]);
-          footer_backend_p.innerText = format(footer_backend_p.innerText, data["api_version"]);
-        })
+  if (window.sessionStorage.getItem("auth") != null) {
+    let auth = JSON.parse(window.sessionStorage.getItem("auth"))
+    fetch("/api/inventory/get/", {
+      "headers": {
+        "Authorization": "Bearer " + auth["token"]
       }
-    });
+    })
+      .then(res => {
+        if (res.status == 429) {
+          let retry_after = request.headers.get("retry-after");
+          show_popup(format("Ratelimited! Retry after {0}s", retry_after), true, 10000);
+        } else if (res.status == 200) {
+          res.json().then(data => {
+            format_element_text("footer_frontend_p", data["frontend_version"]);
+            format_element_text("footer_backend_p", data["api_version"]);
+          })
+        }
+      });
+  }
 });
 
 // Toggle button for navbar.

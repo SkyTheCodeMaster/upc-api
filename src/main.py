@@ -66,6 +66,8 @@ async def startup():
       use_auth_cache=True,
       exempt_ips=config["srv"]["ratelimit_exempt"],
     )
+    api_app.limiter = limiter
+    app.limiter = limiter
 
     disabled_cogs: list[str] = []
 

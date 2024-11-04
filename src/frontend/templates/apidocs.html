@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Sky's UPC Database</title>
     <link rel="stylesheet" href="/css/vendored/bulma.min.css">
-    <script src="/js/common.js" async></script>
     <script type="text/javascript">
       function resizeIframe(iframe) {
         this.container = iframe.contentWindow.document.body;
@@ -25,7 +24,7 @@
     </script>  
   </head>
   <body>
-    <script id="replace_with_navbar" src="/js/nav.js"></script>
+    <script id="replace_with_navbar" src="/js/nav.js" type="module"></script>
     <div class="box m-6" style="height:fit-content;">
       <iframe src="/sup/swagger" style="width:100%;overflow:hidden;" onload="resizeIframe(this)" id="apidocs-iframe"></iframe>
     </div>

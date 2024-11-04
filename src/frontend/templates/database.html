@@ -5,11 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Sky's UPC Database</title>
     <link rel="stylesheet" href="/css/vendored/bulma.min.css">
-    <script src="/js/common.js" async></script>
-    <script src="/js/database.js" async></script>
+    <script src="/js/database.js" async type="module"></script>
   </head>
   <body>
-    <script id="replace_with_navbar" src="/js/nav.js"></script>
+    <script id="replace_with_navbar" src="/js/nav.js" type="module"></script>
     <div class="box m-4">
       <h1 class="title is-4" id="database_info_items" data-text="There are {0} items in the database.">There are {0} items in the database.</h1>
       <h1 class="title is-4" id="database_info_total_backups" data-text="There are {0} total database backups.">There are {0} total database backups.</h1>
@@ -17,17 +16,8 @@
     </div>
     <div class="box m-4">
       <h1 class="title is-5">Backup Browser</h1>
-      <!-- This is the pagination at the top -->
-      <nav class="pagination is-centered" role="navigation" aria-label="pagination">
-        <a class="pagination-previous" id="pagination_previous">Previous</a>
-        <a class="pagination-next" id="pagination_next">Next Page</a>
-        <ul class="pagination-list" id="pagination_list">
-          
-        </ul>
-      </nav>
       <!-- This is the actual table contents -->
-      <h1 id="showing_x_of_y_backups_h1" class="title is-4 has-text-centered my-0" data-text="Showing {0} of {1} backups.">Showing {0} of {1} backups.</h1>
-      <h1 id="page_x_of_y_backups_h1" class="title is-6 has-text-centered my-1" data-text="Page {0} of {1}."></h1>
+      <h1 id="showing_x_of_y_backups_h1" class="title is-4 has-text-centered my-0" data-text="Showing {0} backups."></h1>
       <table class="table is-striped is-bordered mt-0" style="margin: 3em auto;">
         <thead>
           <tr>
@@ -38,15 +28,6 @@
         <tbody id="backup_table_tbody">
         </tbody>
       </table>
-      
-      <!-- This is the pagination at the bottom -->
-      <nav class="pagination is-centered" role="navigation" aria-label="pagination">
-        <a class="pagination-previous" id="pagination_previous_bottom">Previous</a>
-        <a class="pagination-next" id="pagination_next_bottom">Next Page</a>
-        <ul class="pagination-list" id="pagination_list_bottom">
-          
-        </ul>
-      </nav>
     </div>
     <div id="replace_with_footer"></div>
   </body>

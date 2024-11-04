@@ -1,3 +1,5 @@
+import { get_auth_token, sleep } from "./libcommon";
+
 async function load_item_count() {
   let request = await fetch("/api/database/get/");
   if (request.status != 200) {

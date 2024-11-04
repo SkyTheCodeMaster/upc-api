@@ -5,120 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Sky's UPC Database</title>
     <link rel="stylesheet" href="/css/vendored/bulma.min.css">
-    <script src="/js/common.js" async></script>
+    <script src="/js/lookup.js" async type="module"></script>
   </head>
   <body>
-    <script id="replace_with_navbar" src="/js/nav.js"></script>
+    <script id="replace_with_navbar" src="/js/nav.js" type="module"></script>
     <div class="box m-6" style="width:fit-content;">
       <h1 class="title">UPC Lookup</h1>
       <div>
-        <input class="input" type="number" style="width:15ch;" maxlength="12" id="upc-input">
-        <button class="button is-link" onclick="run_upc(this);" id="upc-submit">Check UPC</button>
+        <input class="input" type="number" style="width:15ch;" maxlength="12" id="upc_input">
+        <button class="button is-link" onclick="run_upc(this);" id="upc_submit">Check UPC</button>
       </div>
       <div class="box mt-4" style="width:fit-content;height:fit-content;">
         <h1 class="title is-4">UPC Details:</h1>
-        <p id="upc-details-upc" >UPC:  </p>
-        <p id="upc-details-name">Name: </p>
-        <p id="upc-details-quan">Quan: </p>
+        <p id="upc_details_upc" data-text="UPC: {0}">UPC:  </p>
+        <p id="upc_details_name" data-text="Name: {0}">Name: </p>
+        <p id="upc_details_quan" data-text="Quantity: {0}">Quantity: </p>
       </div>
     </div>
     <div style="position:absolute;height:fit-content;bottom:0;width:100%;">
       <div id="replace_with_footer"></div>
     </div>
   </body>
-  <script>
-    function make_id(length) {
-      let result = '';
-      const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-      for (var i=0; i<length; i++) {
-        result += characters.charAt(Math.floor(Math.random() * characters.length));
-      }
-      return result;
-    }
-
-    function create_popup(reason, is_danger) {
-      // Create the div
-      const div = document.createElement("div");
-
-      // Create a custom ID for removing only the targetted popup.
-      var id = make_id(10);
-      div.id = id;
-
-      div.style.position = "fixed";
-      div.style.top =    "25px";
-      div.style.right =  "40%";
-      div.style.width =  "20%";
-      div.style.zIndex = "100";
-
-      const notification = document.createElement("div")
-      notification.classList.add("notification");
-      if (!is_danger) {
-        notification.classList.add("is-primary");
-      } else {
-        notification.classList.add("is-danger");
-      }
-      // Add a header to the div
-      const text_node = document.createTextNode(reason);
-      // Add the close button
-      const button = document.createElement("button");
-      button.classList.add("delete")
-      button.onclick = function() { 
-        var elem = document.getElementById(id)
-        elem.parentNode.removeChild(elem);
-      };
-      // Put everything together
-      notification.appendChild(button);
-      notification.appendChild(text_node)
-      div.appendChild(notification);
-      // Add it to the HTML page.
-      const body = document.body;
-      body.appendChild(div);
-    }
-
-    function run_upc(button) {
-      button.classList.add("is-loading");
-      button.setAttribute("disabled", true);
-      upc = document.getElementById("upc-input").value;
-      // Now we want to try and get it from the API.
-      var URL = "/api/upc/" + upc;
-
-      var request = new XMLHttpRequest();
-      request.open("GET", URL);
-      request.send();
-      request.onload = function() {
-        if (request.status == 200) {
-          var data = JSON.parse(request.responseText);
-          // Now we have 'upc', 'name', 'quantity', and 'quantity_unit' fields.
-          document.getElementById("upc-details-upc").innerText = "UPC:  " + data["upc"];
-          document.getElementById("upc-details-name").innerText = "Name: " + data["name"];
-          if (data["quantity"]) {
-            document.getElementById("upc-details-quan").innerText = "Quan:  " + data["quantity"] + data["quantity_unit"];
-          } else {
-            document.getElementById("upc-details-quan").innerText = "Quan: Unknown";
-          }
-          button.classList.remove("is-loading");
-          button.removeAttribute("disabled");
-          document.getElementById("upc-input").value = "";
-        } else {
-          create_popup("HTTP" + request.status + ": " + request.responseText, true);
-          button.classList.remove("is-loading");
-          button.removeAttribute("disabled");
-          document.getElementById("upc-input").value = "";
-        }
-      }
-    }
-
-    // Make enter press the submit button too
-    document.getElementById("upc-input").addEventListener("keypress", function(e) {
-      if (e.keyCode == 13) {
-        document.getElementById("upc-submit").click();
-      }
-    })
-
-    if (window.location.hash != "") {
-      // Stick the hash into the input box and push the button.
-      document.getElementById("upc-input").value = window.location.hash.substring(1);
-      document.getElementById("upc-submit").click();
-    }
-  </script>
 </html>

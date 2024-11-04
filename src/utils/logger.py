@@ -3,6 +3,7 @@ from __future__ import annotations
 import functools
 from ipaddress import ip_address
 from typing import TYPE_CHECKING
+import tomllib
 
 from aiohttp import hdrs, web
 from aiohttp.web_log import AccessLogger, KeyMethod
@@ -13,7 +14,11 @@ if TYPE_CHECKING:
 
   from aiohttp.web import BaseRequest, StreamResponse
   from multidict import MultiMapping
+  from utils.extra_request import Request
 
+with open("config.toml") as f:
+  config = tomllib.loads(f.read())
+  TRUSTED_PROXIES = config["srv"]["trusted_proxies"]
 
 def get_forwarded_for(headers: MultiMapping[str]) -> List[IPAddress]:
   forwarded_for: List[str] = headers.getall(hdrs.X_FORWARDED_FOR, [])
@@ -26,13 +31,19 @@ def get_forwarded_for(headers: MultiMapping[str]) -> List[IPAddress]:
   for a in forwarded_for:
     addr = a.strip()
     try:
-      if addr == "127.0.0.1":
+      if addr in TRUSTED_PROXIES:
         continue
       valid_ips.append(ip_address(addr))
     except ValueError:
       raise web.HTTPBadRequest(reason=f"Invalid {hdrs.X_FORWARDED_FOR} header")
   return valid_ips
 
+def get_origin_ip(request: Request) -> str:
+  forwarded_for = get_forwarded_for(request.headers)
+  if not forwarded_for:
+    return request.remote
+  first = forwarded_for[0]
+  return str(first)
 
 class CustomWebLogger(AccessLogger):
   def compile_format(self, log_format: str) -> Tuple[str, List[KeyMethod]]:
