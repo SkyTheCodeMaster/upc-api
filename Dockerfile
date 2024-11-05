@@ -2,7 +2,7 @@ FROM python:3.13-slim
 
 WORKDIR /app
 
-RUN echo $(ls)
+RUN ls
 RUN apt update -y && apt install -y git
 
 COPY . .
