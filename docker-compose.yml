@@ -1,13 +1,14 @@
 version: "3.3"
-
 services:
   upc_api:
     image: upc_api:1.0
     container_name: upc_api
     build: https://github.com/SkyTheCodeMaster/upc-api.git
+    command: --no-cache --progress=plain
     ports:
       - 9000:9000
     volumes:
       - .:/app
     environment:
       - PYTHONUNBUFFERED=1
+networks: {}

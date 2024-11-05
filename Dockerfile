@@ -3,7 +3,7 @@ FROM python:3.13-slim
 WORKDIR /app
 
 RUN ls
-RUN apt update -y && apt install -y git
+RUN apt update -y && apt install -y git build-essentials
 
 COPY . .
 
