@@ -1,13 +1,12 @@
-version: '3'
+version: "3.3"
+
 services:
-  git:
+  upc_api:
     image: upc_api:1.0
     container_name: upc_api
-    build: .
-    command: git -C /build app https://github.com/skythecodemaster/upc-api.git
-  app:
+    build: https://github.com/SkyTheCodeMaster/upc-api.git
     ports:
-      - "9000:9000"
+      - 9000:9000
     volumes:
       - .:/app
     environment:
