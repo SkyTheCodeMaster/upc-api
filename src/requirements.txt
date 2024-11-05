@@ -2,7 +2,7 @@ aiohttp==3.8.6
 aiohttp_basicauth==1.0.0
 aiohttp_remotes==1.2.0
 aiofiles==23.2.1
-asyncpg==0.28.0
+asyncpg==0.30.0
 beautifulsoup4==4.12.2
 coloredlogs==15.0.1
 git+https://github.com/SkyTheCodeMaster/aiohttp-ratelimiter
