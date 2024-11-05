@@ -1,6 +1,6 @@
 "use strict";
 
-import { walk_paginator, request } from "./libcommon.js";
+import { walk_paginator, request, remove_children, create_element, format_element_text } from "./libcommon.js";
 import { show_popup } from "./libpopup.js";
 
 /*
@@ -16,18 +16,26 @@ import { show_popup } from "./libpopup.js";
 function generate_table_row(row) {
   // Take in object of upc, name, quanity, and quantity_unit (output from API)
   // Create all the elements
-  let tr = document.createElement("tr");
-  let td_paste = document.createElement("td");
-  let a_paste = document.createElement("a");
-  a_paste.href = "https://paste.skystuff.cc/"+row["paste"];
-  a_paste.innerText = row["paste"];
-  td_paste.appendChild(a_paste);
-  let td_date = document.createElement("td");
-  td_date.innerText = row["date"];
+  let a_paste = create_element("a", {
+    "inner_text": row["paste"],
+    "attributes": {
+      "href": "https://paste.skystuff.cc/"+row["paste"]
+    }
+  });
+  let td_paste = create_element("td", {
+    "children": [a_paste]
+  });
+  let td_date = create_element("td", {
+    "inner_text": row["date"]
+  });
   
   // Nest elements
-  tr.append(td_paste);
-  tr.append(td_date);
+  let tr = create_element("tr", {
+    "children": [
+      td_paste,
+      td_date
+    ]
+  })
 
   return tr;
 }
@@ -49,13 +57,12 @@ async function fill_all() {
   // Fill the showing_x_of_y_backups_p element.
   format_element_text("showing_x_of_y_backups_h1", backups.length);
 
-  fill_page_selector(backups_data)
-
   let db_request = await request("/api/database/get/");
   if (db_request.status != 200) {
-    show_popup(format("Error fetching data!\nHTTP{0}: {1}", db_request.status, await db_request.text()), true, 10000);
-    return
+    show_popup(`Error fetching data!\nHTTP${db_request.status}: ${await db_request.text()}`, "is-danger", 5000);
+    return;
   }
+
   let db_data = await db_request.json();
   format_element_text("database_info_items", db_data["items"]);
   format_element_text("database_info_total_backups", db_data["backups"]);
@@ -63,11 +70,6 @@ async function fill_all() {
 }
 
 async function setup() {
-  let current_page = Number(window.location.hash.slice(1));
-  if (isNaN(current_page)) {
-    window.location.hash = "0";
-    window.location.reload();
-  }
   fill_all();
 }
 

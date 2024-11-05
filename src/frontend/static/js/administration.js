@@ -1,6 +1,7 @@
 "use strict";
 
 import { get_auth_token, request } from "./libcommon.js";
+import { show_popup } from "./libpopup.js";
 
 async function backup() {
   let token = await get_auth_token();
@@ -12,7 +13,8 @@ async function backup() {
   });
 
   if (resp.status == 200) {
-    window.location = "/database";
+    show_popup("Backed up database!");
+    setTimeout(function() { window.location = "/database"; }, 1000);
   }
 }
 
@@ -25,8 +27,9 @@ async function clear_misses() {
     }
   });
 
-  if (resp.status == 200) {
-    window.location = "/misses";
+  if (resp.status == 204) {
+    show_popup("Cleared misses!");
+    setTimeout(function() { window.location = "/misses"; }, 1000);
   }
 }
 

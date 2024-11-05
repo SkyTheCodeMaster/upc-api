@@ -55,7 +55,7 @@ async function setup() {
   const upc_submit = document.getElementById("upc_submit");
   const upc_input = document.getElementById("upc_input");
 
-  upc_input.onclick = fill_details;
+  upc_submit.onclick = fill_details;
 
   upc_input.addEventListener("keypress", function(e) {
     if (e.code === "Enter") {

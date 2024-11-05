@@ -22,7 +22,7 @@ fetch("/sup/footer")
   // Now that footer exists, we can fill in the details
   if (window.sessionStorage.getItem("auth") != null) {
     let auth = JSON.parse(window.sessionStorage.getItem("auth"))
-    fetch("/api/inventory/get/", {
+    fetch("/api/database/get/", {
       "headers": {
         "Authorization": "Bearer " + auth["token"]
       }
@@ -49,8 +49,8 @@ function toggle_navmenu(burger) {
 }
 
 function get_user_area() {
-  auth_data = window.sessionStorage.getItem("auth")
-  if (auth_data === null || auth_data === "") {
+  let auth_data = window.sessionStorage.getItem("auth")
+  if (!auth_data) {
     fetch("https://auth.skystuff.cc/api/user/get/", { credentials: "include" })
       .then(res => {
         if (res.status == 200) {

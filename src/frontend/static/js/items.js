@@ -1,6 +1,6 @@
 "use strict";
 
-import { format_element_text, walk_paginator } from "./libcommon.js";
+import { format_element_text, walk_paginator, remove_children, create_element } from "./libcommon.js";
 
 function generate_table_row(upc) {
   // Take in object of upc, name, quanity, and quantity_unit (output from API)
@@ -35,6 +35,8 @@ function generate_table_row(upc) {
 function fill_table(items) {
   // This is the resp["items"] part of API response.
   let table_body = document.getElementById("item_table_tbody");
+
+  items.sort((a,b) => (a.upc - b.upc))
   remove_children(table_body);
 
   for (let item of items) {

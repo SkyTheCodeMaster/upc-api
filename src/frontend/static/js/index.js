@@ -1,17 +1,15 @@
-import { get_auth_token, sleep } from "./libcommon";
+import { get_auth_token, request, format_element_text } from "./libcommon.js";
+import { show_popup } from "./libpopup.js";
 
 async function load_item_count() {
-  let request = await fetch("/api/database/get/");
-  if (request.status != 200) {
-    if (request.status == 429) {
-      let retry_after = request.headers.get("retry-after");
-      show_popup(format("Ratelimited! Retry after {0}s", retry_after), true, 10000);
-      return;
-    }
-    show_popup(format("Error fetching data!\nHTTP{0}: {1}", request.status, await request.text()), true, 10000);
+  let token = await get_auth_token();
+
+  let response = await request("/api/database/get/", {"headers": {"Authorization": token}});
+  if (response.status != 200) {
+    show_popup(`Error fetching data!\nHTTP${response.status}: ${await response.text()}`, true, 10000);
     return
   }
-  let info = await request.json();
+  let info = await response.json();
   format_element_text("item_count_title", info["items"]);
 }
 

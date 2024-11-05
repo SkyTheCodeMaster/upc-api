@@ -1,6 +1,6 @@
 "use strict";
 
-import { format_element_text, walk_paginator, create_element } from "./libcommon.js";
+import { format_element_text, walk_paginator, create_element, remove_children } from "./libcommon.js";
 
 /*
 <tr>
@@ -33,7 +33,7 @@ function generate_table_row(miss) {
     ],
     "inner_text":"Google",
     "attributes": {
-      "href": format("https://www.google.com/search?q={0}", miss["upc"]),
+      "href": `https://www.google.com/search?q=${miss["upc"]}`,
       "target": "_blank"
     }
   });
@@ -65,7 +65,7 @@ function fill_table(misses) {
 async function fill_all() {
   let misses = await walk_paginator("misses", "/api/upc/misses/");
   fill_table(misses);
-  format_element_text("showing_x_items_h1", misses.length);
+  format_element_text("showing_x_misses_h1", misses.length);
 }
 
 async function setup() {
