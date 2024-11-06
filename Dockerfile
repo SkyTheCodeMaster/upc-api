@@ -6,6 +6,8 @@ RUN apt update -y && apt install -y git build-essential
 
 RUN git clone https://github.com/SkyTheCodeMaster/upc-api.git /app/
 
+COPY /app/ /app/
+
 RUN pip install --upgrade pip
 RUN pip install --no-cache-dir -r src/requirements.txt
 
