@@ -1,13 +1,15 @@
 version: "3.3"
 services:
   upc_api:
-    image: upc_api:1.0
     container_name: upc_api
-    build: https://github.com/SkyTheCodeMaster/upc-api.git
+    build: 
+      context: https://github.com/SkyTheCodeMaster/upc-api.git
+      no_cache: true
     ports:
       - 9000:9000
     volumes:
       - .:/app
+      - /path/to/config/:/app/config/ # Your config file, example @ /src/config.example.toml
     environment:
       - PYTHONUNBUFFERED=1
 networks: {}
