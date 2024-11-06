@@ -2,7 +2,7 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-RUN ls
+RUN echo $(ls) 1>$2
 RUN apt update -y && apt install -y git build-essential
 
 COPY . .
