@@ -10,6 +10,4 @@ COPY . .
 RUN pip install --upgrade pip
 RUN pip install --no-cache-dir -r src/requirements.txt
 
-WORKDIR /app/src/
-
-CMD ["python", "main.py"]
+CMD ["python", "src/main.py"]
