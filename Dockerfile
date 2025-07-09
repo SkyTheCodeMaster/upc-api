@@ -12,7 +12,7 @@ RUN apt update -y && apt install -y git build-essential tree
 
 # Install requirements
 RUN pip install --upgrade pip
-RUN pip install --no-cache-dir -r ./src/requirements.txt
+RUN pip install --no-cache-dir -r ./requirements.txt
 
 
 # Run the main script
