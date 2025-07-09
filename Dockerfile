@@ -1,7 +1,7 @@
 FROM python:3.11-slim
 
 COPY . /app/
-WORKDIR /app/
+WORKDIR /app/src/
 
 RUN apt update -y && apt install -y git build-essential tree
 
@@ -16,4 +16,4 @@ RUN pip install --no-cache-dir -r ./src/requirements.txt
 
 
 # Run the main script
-CMD ["python", "/app/src/main.py"]
+CMD ["python", "main.py"]
