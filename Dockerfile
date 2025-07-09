@@ -16,5 +16,4 @@ RUN pip install --no-cache-dir -r ./src/requirements.txt
 
 
 # Run the main script
-#CMD ["python", "/app/upc-api/src/main.py"]
-CMD ["tree", "/app/"]
+CMD ["python", "/app/src/main.py"]
