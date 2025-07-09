@@ -5,7 +5,7 @@ WORKDIR /app/
 RUN apt update -y && apt install -y git build-essential tree
 
 # Clone the repository
-RUN git clone https://github.com/SkyTheCodeMaster/upc-api.git /app/
+#RUN git clone https://github.com/SkyTheCodeMaster/upc-api.git /app/
 
 # Copy the current directory into the cloned repo
 
