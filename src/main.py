@@ -20,7 +20,7 @@ LOGDATEFMT = "%Y/%m/%d-%H:%M:%S"
 
 handlers = [logging.StreamHandler()]
 
-with open("/app/config/config.toml") as f:
+with open("config.toml") as f:
   config = tomllib.loads(f.read())
 
 if config["log"]["file"]:
