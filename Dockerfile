@@ -13,8 +13,6 @@ RUN git clone https://github.com/SkyTheCodeMaster/upc-api.git /app/
 RUN pip install --upgrade pip
 RUN pip install --no-cache-dir -r ./src/requirements.txt
 
-COPY /app/ /app/
-
 # Run the main script
 #CMD ["python", "/app/upc-api/src/main.py"]
 CMD ["tree", "/app/"]
